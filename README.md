@@ -474,8 +474,3 @@ pytest
 | Exportação CSV/PDF | Facilitar compartilhamento dos resultados |
 | Fila assíncrona | Preparar processamento de documentos em lote |
 
-## Como Explicar em Entrevista
-
-Uma forma simples de apresentar:
-
-> Desenvolvi um pipeline demonstrativo de pré-triagem de precatórios. Ele combina FastAPI, Streamlit, Pydantic, SQLite, extração de texto de PDF, parsing heurístico, regras determinísticas de score/classificação e resumo com LLM via API OpenAI-compatible. A arquitetura separa bem as responsabilidades, o que torna o fluxo fácil de testar, explicar e evoluir. O objetivo não é substituir análise humana, mas mostrar como automação e IA podem reduzir trabalho repetitivo e organizar informações críticas antes da avaliação especializada.
