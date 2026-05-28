@@ -1,0 +1,12 @@
+Documento simulado para demonstração do Precatorio Insight Pipeline.
+
+Nome do credor: Maria Silva
+Número do processo: 1234567-89.2024.8.26.0053
+Tribunal: TJSP
+Ente devedor: Estado de São Paulo
+Valor estimado: R$ 185.000,00
+Tipo de precatório: Estadual
+Natureza: Alimentar
+Data prevista de pagamento: 31/12/2026
+Status documental: Parcial
+Observações: Exemplo fictício criado para teste do MVP. Não contém dados reais.
