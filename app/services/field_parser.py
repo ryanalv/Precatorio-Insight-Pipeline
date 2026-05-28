@@ -6,13 +6,17 @@ from app.schemas import PrecatorioInput
 
 
 FIELD_PATTERNS: dict[str, list[str]] = {
-    "nome_credor": [r"nome\s+do\s+credor", r"credor"],
-    "numero_processo": [r"n[úu]mero\s+do\s+processo", r"processo"],
+    "nome_credor": [r"nome\s+do\s+credor", r"parte\s+credora", r"credor"],
+    "numero_processo": [r"n[úu]mero\s+do\s+processo", r"n[ºo°]\.?\s+do\s+processo", r"processo"],
     "tribunal": [r"tribunal"],
-    "ente_devedor": [r"ente\s+devedor", r"devedor"],
-    "valor_estimado": [r"valor\s+estimado", r"valor\s+do\s+precat[óo]rio", r"valor"],
+    "ente_devedor": [r"entidade\s+devedora", r"ente\s+devedor", r"devedor"],
+    "valor_estimado": [
+        r"valor\s+requisitado",
+        r"valor\s+do\s+precat[óo]rio",
+        r"valor\s+estimado",
+    ],
     "tipo_precatorio": [r"tipo\s+de\s+precat[óo]rio", r"tipo\s+precat[óo]rio"],
-    "natureza": [r"natureza"],
+    "natureza": [r"natureza\s+do\s+cr[ée]dito", r"natureza"],
     "data_prevista_pagamento": [
         r"data\s+prevista\s+de\s+pagamento",
         r"data\s+prevista\s+pagamento",
@@ -66,10 +70,32 @@ def _find_court(text: str) -> str | None:
 
 
 def _find_money_value(text: str) -> str | None:
-    match = re.search(r"R\$\s*\d{1,3}(?:\.\d{3})*,\d{2}", text)
+    with_currency = re.search(
+        r"R\$\s*(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d{2}|\.\d{2})?",
+        text,
+    )
+    if with_currency:
+        return with_currency.group(0)
+
+    match = re.search(
+        r"\b(?:\d{1,3}(?:\.\d{3})+,\d{2}|\d+,\d{2}|\d+\.\d{2})\b",
+        text,
+    )
     return match.group(0) if match else None
 
 
 def _find_date(text: str) -> str | None:
     match = re.search(r"\b\d{2}/\d{2}/\d{4}\b", text)
+    if match:
+        return match.group(0)
+
+    contextual_year = re.search(
+        r"(?:pagamento|previs[aã]o|data\s+prevista).{0,40}\b(?P<year>20\d{2})\b",
+        text,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if contextual_year:
+        return contextual_year.group("year")
+
+    match = re.search(r"(?<![\d.-])\b20\d{2}\b(?![\d.-])", text)
     return match.group(0) if match else None
