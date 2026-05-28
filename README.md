@@ -147,6 +147,7 @@ Essa composição deixa a regra de negócio fácil de testar: cada etapa tem uma
 
 ```text
 .
+├── main.py                         # Launcher local: inicia backend + Streamlit
 ├── app/
 │   ├── main.py                     # Cria a aplicação FastAPI e registra rotas
 │   ├── config.py                   # Lê .env e centraliza configurações
@@ -257,31 +258,52 @@ Com o backend rodando em `http://localhost:8000`, a documentação interativa fi
 
 ## Como Rodar
 
-### 1. Criar ambiente virtual
+### Execução padrão
+
+Depois de instalar as dependências uma vez, o projeto inteiro sobe com um único comando:
+
+```bash
+python main.py
+```
+
+O `main.py` da raiz faz a orquestração local:
+
+| Ordem | O que ele faz |
+| --- | --- |
+| 1 | Carrega variáveis do `.env`, quando existir |
+| 2 | Inicia o backend FastAPI em `http://127.0.0.1:8000` |
+| 3 | Aguarda a API responder no endpoint `/` |
+| 4 | Define `API_BASE_URL` para o frontend |
+| 5 | Inicia o Streamlit em `http://127.0.0.1:8501` |
+| 6 | Mantém os dois processos ativos até `Ctrl+C` |
+
+URLs padrão:
+
+| Recurso | URL |
+| --- | --- |
+| Site Streamlit | `http://127.0.0.1:8501` |
+| API FastAPI | `http://127.0.0.1:8000` |
+| Swagger/OpenAPI | `http://127.0.0.1:8000/docs` |
+
+### Primeira configuração
+
+Crie e ative um ambiente virtual:
 
 ```bash
 python -m venv .venv
 ```
 
-Ative o ambiente:
-
-```bash
-# Windows PowerShell
+```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-```bash
-# Linux/macOS
-source .venv/bin/activate
-```
-
-### 2. Instalar dependências
+Instale as dependências:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configurar variáveis de ambiente
+Configure as variáveis de ambiente:
 
 Copie o arquivo de exemplo:
 
@@ -313,22 +335,30 @@ API_BASE_URL=http://localhost:8000
 | `DATABASE_PATH` | Não | Caminho do arquivo SQLite local |
 | `API_BASE_URL` | Não | URL usada pelo Streamlit para chamar a API |
 
-### 4. Subir o backend
+### Opções do launcher
+
+O comando padrão já é suficiente, mas o launcher permite trocar portas ou evitar abertura automática do navegador:
+
+```bash
+python main.py --backend-port 8001 --frontend-port 8502 --no-browser
+```
+
+| Opção | Uso |
+| --- | --- |
+| `--backend-host` | Host do FastAPI. Padrão: `127.0.0.1` |
+| `--backend-port` | Porta do FastAPI. Padrão: `8000` |
+| `--frontend-host` | Host do Streamlit. Padrão: `127.0.0.1` |
+| `--frontend-port` | Porta do Streamlit. Padrão: `8501` |
+| `--startup-timeout` | Tempo máximo para a API ficar pronta |
+| `--no-browser` | Não abre o navegador automaticamente |
+
+### Comandos individuais para debug
+
+Normalmente não é necessário rodar estes comandos manualmente. Eles ficam úteis quando você quer depurar apenas uma camada.
 
 ```bash
 uvicorn app.main:app --reload
 ```
-
-Serviços disponíveis:
-
-| Recurso | URL |
-| --- | --- |
-| API | `http://localhost:8000` |
-| Swagger/OpenAPI | `http://localhost:8000/docs` |
-
-### 5. Subir o frontend
-
-Em outro terminal, com o backend ativo:
 
 ```bash
 streamlit run frontend/streamlit_app.py
@@ -338,9 +368,10 @@ streamlit run frontend/streamlit_app.py
 
 | Ação | Comando |
 | --- | --- |
+| Subir tudo | `python main.py` |
 | Instalar dependências | `pip install -r requirements.txt` |
-| Rodar API | `uvicorn app.main:app --reload` |
-| Rodar frontend | `streamlit run frontend/streamlit_app.py` |
+| Rodar só a API | `uvicorn app.main:app --reload` |
+| Rodar só o frontend | `streamlit run frontend/streamlit_app.py` |
 | Rodar testes | `pytest` |
 
 ## Exemplos
